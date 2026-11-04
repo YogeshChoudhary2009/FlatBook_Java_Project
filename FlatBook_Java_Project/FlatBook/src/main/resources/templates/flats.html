@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Browse Flats - FlatBook</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        body { background: #f8f9fa; }
+        .navbar { background: linear-gradient(135deg, #1a1a2e, #16213e) !important; }
+        .flat-card { border: none; border-radius: 12px; transition: 0.2s; }
+        .flat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .flat-img { height: 160px; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-size: 2.5rem; }
+        .price { font-weight: 700; color: #198754; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/"><i class="bi bi-building"></i> FlatBook</a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link text-white" href="/">Home</a>
+            <a class="nav-link text-white" href="/flats">Flats</a>
+            <a class="nav-link text-white" href="/my-bookings" sec:authorize="isAuthenticated()">My Bookings</a>
+            <a class="nav-link text-white" href="/login" sec:authorize="!isAuthenticated()">Login</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container my-4">
+    <h2 class="mb-3">Search Results</h2>
+    <!-- Filters -->
+    <form action="/flats" method="get" class="card card-body mb-4 shadow-sm">
+        <div class="row g-2">
+            <div class="col-md-3">
+                <select name="city" class="form-select">
+                    <option value="">All Cities</option>
+                    <option th:each="c : ${cities}" th:value="${c}" th:text="${c}" th:selected="${c == city}"></option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="bhkType" class="form-select">
+                    <option value="">Any BHK</option>
+                    <option value="1BHK" th:selected="${bhkType == '1BHK'}">1 BHK</option>
+                    <option value="2BHK" th:selected="${bhkType == '2BHK'}">2 BHK</option>
+                    <option value="3BHK" th:selected="${bhkType == '3BHK'}">3 BHK</option>
+                    <option value="Studio" th:selected="${bhkType == 'Studio'}">Studio</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="minPrice" class="form-control" placeholder="Min Price" th:value="${minPrice}">
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="maxPrice" class="form-control" placeholder="Max Price" th:value="${maxPrice}">
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100" type="submit"><i class="bi bi-search"></i> Filter</button>
+            </div>
+        </div>
+    </form>
+
+    <p class="text-muted" th:text="${#lists.size(flats)} + ' flats found'"></p>
+    <div class="row g-4">
+        <div class="col-md-4" th:each="flat : ${flats}">
+            <div class="card flat-card h-100 shadow-sm">
+                <div class="flat-img"><i class="bi bi-house-door"></i></div>
+                <div class="card-body">
+                    <span class="badge bg-primary" th:text="${flat.bhkType}"></span>
+                    <h5 class="mt-2" th:text="${flat.title}"></h5>
+                    <p class="small text-muted mb-1"><i class="bi bi-geo-alt"></i> <span th:text="${flat.locality + ', ' + flat.city}"></span></p>
+                    <p class="price mb-2">₹<span th:text="${#numbers.formatInteger(flat.price,1,'COMMA')}"></span>/mo</p>
+                    <a th:href="@{/flats/{id}(id=${flat.id})}" class="btn btn-outline-primary btn-sm">View &amp; Book</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
